@@ -1,0 +1,47 @@
+# Compilación de .NET
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Configuraciones de VSCode
+.vscode/
+
+# Archivos temporales
+*.log
+*.tmp
+*.temp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Secretos de configuración (asegúrate de no subir tus claves)
+appsettings.*.json
+!appsettings.Development.json  # Permite el de desarrollo si quieres
+
+# Entity Framework Migrations
+Migrations/
+
+# Base de datos SQLite local (si usaras)
+*.db
+*.sqlite
+
+# Docker
+**/docker-compose.override.yml
+**/docker-compose.debug.yml
+**/*.pid
+
+# Carpetas de publicación
+publish/
+dist/
+build/
+
+# Rider / JetBrains IDE
+.idea/
+
+# Visual Studio
+*.vs/
