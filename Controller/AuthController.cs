@@ -26,7 +26,6 @@ public class AuthController : ControllerBase
         return Ok(result.Message);
     }
 
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -34,5 +33,25 @@ public class AuthController : ControllerBase
         if (token == null)
             return Unauthorized("Credenciales incorrectas");
         return Ok(new { token });
+    }
+
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var result = await _authService.ChangePasswordAsync(request);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var result = await _authService.ResetPasswordAsync(request);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
     }
 }

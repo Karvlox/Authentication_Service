@@ -5,4 +5,5 @@ public interface IStaffRepository
 {
     Task<Staff?> GetByCiAsync(int ci);
     Task AddAsync(Staff staff);
+    Task UpdateAsync(Staff staff);
 }

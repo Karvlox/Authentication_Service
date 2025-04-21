@@ -1,10 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Authentication_Service.Models;
 using Authentication_Service.Repositories;
 using Authentication_Service.Utils;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace Authentication_Service.Services;
 
@@ -50,7 +50,7 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim("ci", user.Ci.ToString()),
             new Claim("numero", user.NumerPhone.ToString()),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
@@ -61,8 +61,40 @@ public class AuthService : IAuthService
             audience: "auth_service_users",
             claims: claims,
             expires: DateTime.Now.AddHours(1),
-            signingCredentials: creds);
+            signingCredentials: creds
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<(bool Success, string Message)> ChangePasswordAsync(
+        ChangePasswordRequest request
+    )
+    {
+        var user = await _repository.GetByCiAsync(request.Ci);
+        if (user == null)
+            return (false, "Usuario no encontrado");
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.Password))
+            return (false, "La contraseña actual no es correcta");
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _repository.UpdateAsync(user);
+
+        return (true, "Contraseña actualizada con éxito");
+    }
+
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(
+        ResetPasswordRequest request
+    )
+    {
+        var user = await _repository.GetByCiAsync(request.Ci);
+        if (user == null || user.NumerPhone != request.NumerPhone)
+            return (false, "CI o número de teléfono incorrectos");
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _repository.UpdateAsync(user);
+
+        return (true, "Contraseña restablecida con éxito");
     }
 }

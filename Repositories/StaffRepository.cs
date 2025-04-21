@@ -3,9 +3,11 @@ using Authentication_Service.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Authentication_Service.Repositories;
+
 public class StaffRepository : IStaffRepository
 {
     private readonly AppDbContext _context;
+
     public StaffRepository(AppDbContext context)
     {
         _context = context;
@@ -19,6 +21,12 @@ public class StaffRepository : IStaffRepository
     public async Task AddAsync(Staff staff)
     {
         await _context.Staffs.AddAsync(staff);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Staff staff)
+    {
+        _context.Staffs.Update(staff);
         await _context.SaveChangesAsync();
     }
 }
