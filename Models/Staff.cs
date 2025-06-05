@@ -11,6 +11,6 @@ public class Staff
     public int Ci { get; set; }
     public required string Password { get; set; }
     public int Age { get; set; }
-    public int NumerPhone { get; set; }
+    public int NumberPhone { get; set; }
     public required string Role { get; set; }
 }

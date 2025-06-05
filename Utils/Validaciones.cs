@@ -22,7 +22,7 @@ public static class Validaciones
         if (staff.Age < 16 || staff.Age > 70)
             return "La edad debe estar entre 16 y 70 años.";
 
-        if (!Regex.IsMatch(staff.NumerPhone.ToString(), @"^[67]\d{7}$"))
+        if (!Regex.IsMatch(staff.NumberPhone.ToString(), @"^[67]\d{7}$"))
             return "El número de celular debe tener 8 dígitos y comenzar con 6 o 7.";
 
         if (staff.Role != "ADMIN" && staff.Role != "EMPLEADO")

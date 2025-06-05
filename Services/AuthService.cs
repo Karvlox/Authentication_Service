@@ -49,7 +49,7 @@ public class AuthService : IAuthService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim("ci", user.Ci.ToString()),
-            new Claim("numero", user.NumerPhone.ToString()),
+            new Claim("numero", user.NumberPhone.ToString()),
             new Claim(ClaimTypes.Role, user.Role),
         };
 
@@ -89,7 +89,7 @@ public class AuthService : IAuthService
     )
     {
         var user = await _repository.GetByCiAsync(request.Ci);
-        if (user == null || user.NumerPhone != request.NumerPhone)
+        if (user == null || user.NumberPhone != request.NumerPhone)
             return (false, "CI o número de teléfono incorrectos");
 
         user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
