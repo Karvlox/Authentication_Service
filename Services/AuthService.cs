@@ -45,13 +45,21 @@ public class AuthService : IAuthService
 
     private string GenerateJwtToken(Staff user)
     {
-        var claims = new[]
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
+
+        var properties = typeof(Staff)
+            .GetProperties()
+            .Where(prop => prop.Name != "Password")
+            .ToList();
+
+        foreach (var prop in properties)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim("ci", user.Ci.ToString()),
-            new Claim("numero", user.NumberPhone.ToString()),
-            new Claim(ClaimTypes.Role, user.Role),
-        };
+            var value = prop.GetValue(user)?.ToString();
+            if (value != null)
+            {
+                claims.Add(new Claim(prop.Name, value));
+            }
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -89,12 +97,76 @@ public class AuthService : IAuthService
     )
     {
         var user = await _repository.GetByCiAsync(request.Ci);
-        if (user == null || user.NumberPhone != request.NumerPhone)
+        if (user == null || user.NumberPhone != request.NumberPhone)
             return (false, "CI o número de teléfono incorrectos");
 
         user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
         await _repository.UpdateAsync(user);
 
         return (true, "Contraseña restablecida con éxito");
+    }
+
+    public async Task<(bool Success, string Message)> UpdateAsync(
+        Guid userId,
+        UpdateStaffRequest request
+    )
+    {
+        var user = await _repository.GetByIdAsync(userId);
+        if (user == null)
+            return (false, "Usuario no encontrado");
+
+        // Crear un objeto Staff temporal para validar los datos
+        var staffToValidate = new Staff
+        {
+            Name = request.Name,
+            LastName = request.LastName,
+            Ci = request.Ci,
+            Age = request.Age,
+            NumberPhone = request.NumberPhone,
+            Role = request.Role,
+            Password = user.Password,
+            Id = userId,
+        };
+
+        // Validar los datos
+        var error = Validaciones.ValidarStaff(staffToValidate);
+        if (error != null)
+            return (false, error);
+
+        // Verificar si el nuevo CI ya está registrado por otro usuario
+        var existingUserWithCi = await _repository.GetByCiAsync(request.Ci);
+        if (existingUserWithCi != null && existingUserWithCi.Id != userId)
+            return (false, "El CI ya está registrado por otro usuario.");
+
+        // Actualizar los campos del usuario
+        user.Name = request.Name;
+        user.LastName = request.LastName;
+        user.Ci = request.Ci;
+        user.Age = request.Age;
+        user.NumberPhone = request.NumberPhone;
+        user.Role = request.Role;
+
+        await _repository.UpdateAsync(user);
+        return (true, "Datos actualizados con éxito");
+    }
+
+    public async Task<(bool Success, StaffResponse? Data, string Message)> GetByIdAsync(Guid userId)
+    {
+        var user = await _repository.GetByIdAsync(userId);
+        if (user == null)
+            return (false, null, "Usuario no encontrado");
+
+        var response = new StaffResponse
+        {
+            Id = user.Id,
+            Name = user.Name,
+            LastName = user.LastName,
+            Ci = user.Ci,
+            Age = user.Age,
+            NumberPhone = user.NumberPhone,
+            Role = user.Role,
+        };
+
+        return (true, response, "Usuario encontrado con éxito");
     }
 }
