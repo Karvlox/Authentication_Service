@@ -18,6 +18,11 @@ public class StaffRepository : IStaffRepository
         return await _context.Staffs.FirstOrDefaultAsync(u => u.Ci == ci);
     }
 
+    public async Task<Staff?> GetByIdAsync(Guid id)
+    {
+        return await _context.Staffs.FirstOrDefaultAsync(u => u.Id == id);
+    }
+
     public async Task AddAsync(Staff staff)
     {
         await _context.Staffs.AddAsync(staff);

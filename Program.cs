@@ -61,7 +61,7 @@ var app = builder.Build();
 
 // Configurar el pipeline de la aplicación
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 // Agregar middleware de Swagger
 app.UseSwagger();
 app.UseSwaggerUI(c =>

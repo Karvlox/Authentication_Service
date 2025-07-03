@@ -1,7 +1,9 @@
 using Authentication_Service.Models;
 using Authentication_Service.Services;
 using Authentication_Service.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Authentication_Service.Controllers;
 
@@ -53,5 +55,25 @@ public class AuthController : ControllerBase
             return BadRequest(result.Message);
 
         return Ok(result.Message);
+    }
+
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStaffRequest request)
+    {
+        var result = await _authService.UpdateAsync(id, request);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _authService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result.Message);
+
+        return Ok(result.Data);
     }
 }
