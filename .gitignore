@@ -24,7 +24,7 @@ appsettings.*.json
 !appsettings.Development.json  # Permite el de desarrollo si quieres
 
 # Entity Framework Migrations
-Migrations/
+# Migrations/
 
 # Base de datos SQLite local (si usaras)
 *.db
