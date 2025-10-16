@@ -122,7 +122,7 @@ public class AuthService : IAuthService
             LastName = request.LastName,
             Ci = request.Ci,
             Age = request.Age,
-            NumberPhone = request.NumberPhone,
+            NumberPhone = request.NumberPhone,  
             Role = request.Role,
             Password = user.Password,
             Id = userId,
